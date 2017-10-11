@@ -1,0 +1,5 @@
+test/output/*.txt.out
+test/reports/*.txt
+*.tab.c
+*.yy.c
+a.out
