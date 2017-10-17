@@ -4,16 +4,28 @@
 #include <stdio.h>
 #include "SymbolTable.h"
 
+// incremented in *.l with each NEWLINE
+// used for tracing current line
 int numlines = 1;
+
+// stack of scopes
+// tracks variables
 stack<SymbolTable> scopes;
 
+// prints .yy rule
 void printRule(const char* lhs, const char* rhs);
+
 int yyerror(const char* str);
+
+// prints .l lexemes and tokens
 void printTokenInfo(const char* tokenType, const char* lexeme);
 
+// used to add/remove scopes to scope stack above
 void beginScope();
 void endScope();
 
+// deep-checks scopes to see if variable exists
+// TODO: is variable shadowing allowed?
 bool variableDeclared(const string varName);
 
 extern "C"
@@ -159,7 +171,7 @@ N_ID_EXPR_LIST:
       YYABORT;
     }
 
-    scopes.top().add(SymbolTableEntry($3, -1));
+    scopes.top().add(SymbolTableEntry($3, UNDEFINED));
   };
 
 N_LAMBDA_EXPR:
@@ -183,7 +195,7 @@ N_ID_LIST:
       YYABORT;
     }
 
-    scopes.top().add(SymbolTableEntry($2, -1));
+    scopes.top().add(SymbolTableEntry($2, UNDEFINED));
   };
 
 N_PRINT_EXPR:
@@ -315,6 +327,8 @@ bool variableDeclared(const string varName)
 
   else // we need to go deeper
   {
+    // really don't like this we're copying and modifying data all over the place
+    // should look for a custom stack or write one that doesn't require this level of hack
     SymbolTable symbolTable = scopes.top();
     scopes.pop();
     found = variableDeclared(varName);

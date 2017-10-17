@@ -9,30 +9,43 @@
 #include <string>
 using namespace std;
 
-#define UNDEFINED  -1
+enum Type
+{
+  UNDEFINED, // remove eventually
+  BOOL,
+  INT,
+  STR,
+  FUNCTION,
+  INT_OR_STR,
+  INT_OR_BOOL,
+  STR_OR_BOOL,
+  INT_OR_STR_OR_BOOL
+};
 
 class SymbolTableEntry
 {
 private:
   string name;
-  int typeCode;
+  Type type;
+  short numParams; // used only if `type` == function
+  Type returnType; // used only if `type` == function
 
 public:
-
+  // remove eventually
   SymbolTableEntry()
   {
     name = "";
-    typeCode = -1;
+    type = UNDEFINED;
   }
 
-  SymbolTableEntry(const string entryName, const int entryTypeCode)
+  SymbolTableEntry(const string entryName, const Type entryType)
   {
     name = entryName;
-    typeCode = entryTypeCode;
+    type = entryType;
   }
 
   string getName() const { return name; }
-  int getTypeCode() const { return typeCode; }
+  int getTypeCode() const { return type; }
 
 };
 
