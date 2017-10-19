@@ -10,8 +10,8 @@
 using namespace std;
 
 enum Type
-{
-  UNDEFINED, // remove eventually
+{i
+  NOT_APPLICABLE, // remove eventually
   BOOL,
   INT,
   STR,
@@ -38,14 +38,27 @@ public:
   SymbolTableEntry()
   {
     name = "";
-    type = UNDEFINED;
+    TYPE_INFO.type = NOT_APPLICABLE;
+    TYPE_INFO.numParams = NOT_APPLICABLE;
+    TYPE_INFO.returnType = NOT_APPLICABLE;
   }
 
+  // Non-Function Constructor
   SymbolTableEntry(const string entryName, const Type entryType)
   {
     name = entryName;
     TYPE_INFO.type = entryType;
-    // need to handle function stuff
+    TYPE_INFO.numParams = NOT_APPLICABLE;
+    TYPE_INFO.returnType = NOT_APPLICABLE;
+  }
+
+  // Function Constructor
+  SymbolTableEntry(const string entryName, const Type entryType, const int entryParams, const Type returnType)
+  {
+     name = entryName;
+     TYPE_INFO.type = entryType;
+     TYPE_INFO.numParams = NOT_APPLICABLE; 
+     TYPE_INFO.returnType = NOT_APPLICABLE;
   }
 
   string getName() const { return name; }
