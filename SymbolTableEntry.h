@@ -26,9 +26,12 @@ class SymbolTableEntry
 {
 private:
   string name;
-  Type type;
-  short numParams; // used only if `type` == function
-  Type returnType; // used only if `type` == function
+  struct TYPE_INFO
+  {
+    Type type;
+    int numParams;     // only applicable if type == FUNCTION
+    Type returnType;   // only applicable if type == FUNCTION
+  }
 
 public:
   // remove eventually
@@ -41,11 +44,15 @@ public:
   SymbolTableEntry(const string entryName, const Type entryType)
   {
     name = entryName;
-    type = entryType;
+    TYPE_INFO.type = entryType;
+    // need to handle function stuff
   }
 
   string getName() const { return name; }
-  int getTypeCode() const { return type; }
+  int getTypeCode() const
+  {
+    return 
+  }  // change
 
 };
 
