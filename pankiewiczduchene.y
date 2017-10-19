@@ -40,6 +40,7 @@ extern "C"
 %union
 {
   char* text;
+  TPYE_INFO typeInfo;
 }
 
 %token T_LETSTAR
@@ -70,6 +71,9 @@ extern "C"
 %token T_UNKNOWN
 
 %type <text> T_IDENT
+%type <typeInfo> N_CONST N_EXPR N_PARENTHESIZED_EXPR N_IF_EXPR
+// need to add the rest of these
+
 
 %start N_START
 
