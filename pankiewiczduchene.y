@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <stdio.h>
+#include "TypeInfo.h"
 #include "SymbolTable.h"
 
 // incremented in *.l with each NEWLINE
@@ -40,7 +41,7 @@ extern "C"
 %union
 {
   char* text;
-  TPYE_INFO typeInfo;
+  TypeInfo typeInfo;
 }
 
 %token T_LETSTAR
@@ -175,7 +176,7 @@ N_ID_EXPR_LIST:
       YYABORT;
     }
 
-    scopes.top().add(SymbolTableEntry($3, UNDEFINED));
+    scopes.top().add(SymbolTableEntry($3, NOT_APPLICABLE));
   };
 
 N_LAMBDA_EXPR:
@@ -199,7 +200,7 @@ N_ID_LIST:
       YYABORT;
     }
 
-    scopes.top().add(SymbolTableEntry($2, UNDEFINED));
+    scopes.top().add(SymbolTableEntry($2, NOT_APPLICABLE));
   };
 
 N_PRINT_EXPR:
