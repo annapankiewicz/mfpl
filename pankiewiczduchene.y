@@ -268,9 +268,9 @@ N_ID_LIST:
     $$.numParams = $1.numParams + 1;
     $$.returnType = NOT_APPLICABLE;
 
-    $2.type = INT;
+    /*$2.type = INT;
     $2.numParams = 0;
-    $2.returnType= NOT_APPLICABLE;
+    $2.returnType = NOT_APPLICABLE;*/
   };
 
 N_PRINT_EXPR:
