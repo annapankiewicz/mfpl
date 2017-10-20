@@ -4,15 +4,15 @@
 
 enum Type
 {
-  NOT_APPLICABLE, // remove eventually
-  BOOL,
-  INT,
-  STR,
-  FUNCTION,
-  INT_OR_STR,
-  INT_OR_BOOL,
-  STR_OR_BOOL,
-  INT_OR_STR_OR_BOOL
+  NOT_APPLICABLE = 0x0, // remove eventually
+  BOOL = 0x1,
+  INT = 0x2,
+  INT_OR_BOOL = 0x3,
+  STR = 0x4,
+  STR_OR_BOOL = 0x5,
+  INT_OR_STR = 0x6,
+  INT_OR_STR_OR_BOOL = 0x7,
+  FUNCTION = 0x8
 };
 
 struct TypeInfo
