@@ -53,6 +53,21 @@ public:
 
   }
 
+  SymbolTableEntry get(string nameQuery)
+  {
+    map<string, SymbolTableEntry>::iterator itr;
+
+    if ((itr = hashTable.find(nameQuery)) != hashTable.end())
+    {
+      return hashTable[nameQuery];
+    }
+
+    else
+    {
+      return SymbolTableEntry();
+    }
+  }
+
 };
 
 #endif
