@@ -133,10 +133,12 @@ N_EXPR:
   T_LPAREN N_PARENTHESIZED_EXPR T_RPAREN {
     printRule("EXPR", "( PARENTHESIZED_EXPR )");
 
+    // float type back up
     $$.type = $2.type;
     $$.numParams = $2.numParams;
     $$.returnType = $2.returnType;
   };
+
 
 N_CONST:
   T_INTCONST {
@@ -172,6 +174,7 @@ N_PARENTHESIZED_EXPR:
   N_ARITHLOGIC_EXPR {
     printRule("PARENTHESIZED_EXPR", "ARITHLOGIC_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -180,6 +183,7 @@ N_PARENTHESIZED_EXPR:
   N_IF_EXPR {
     printRule("PARENTHESIZED_EXPR", "IF_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -188,6 +192,7 @@ N_PARENTHESIZED_EXPR:
   N_LET_EXPR {
     printRule("PARENTHESIZED_EXPR", "LET_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -196,6 +201,7 @@ N_PARENTHESIZED_EXPR:
   N_LAMBDA_EXPR {
     printRule("PARENTHESIZED_EXPR", "LAMBDA_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -204,6 +210,7 @@ N_PARENTHESIZED_EXPR:
   N_PRINT_EXPR {
     printRule("PARENTHESIZED_EXPR", "PRINT_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -212,6 +219,7 @@ N_PARENTHESIZED_EXPR:
   N_INPUT_EXPR {
     printRule("PARENTHESIZED_EXPR", "INPUT_EXPR");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -220,6 +228,7 @@ N_PARENTHESIZED_EXPR:
   N_EXPR_LIST {
     printRule("PARENTHESIZED_EXPR", "EXPR_LIST");
 
+    // float
     $$.type = $1.type;
     $$.numParams = $1.numParams;
     $$.returnType = $1.returnType;
@@ -230,13 +239,14 @@ N_ARITHLOGIC_EXPR:
   N_UN_OP N_EXPR {
     printRule("ARITHLOGIC_EXPR", "UN_OP EXPR");
 
+    // EXPR can't be a function
     if ($2.type == FUNCTION)
     {
       yyerror("Arg 1 cannot be function");
       YYABORT;
     }
 
-    $$.type = BOOL;
+    $$.type = BOOL; // end type is always bool, regardless of EXPR
     $$.numParams = 0;
     $$.returnType = NOT_APPLICABLE;
 
@@ -244,6 +254,7 @@ N_ARITHLOGIC_EXPR:
   N_BIN_OP N_EXPR N_EXPR {
     printRule("ARITHLOGIC_EXPR", "BIN_OP EXPR EXPR");
 
+    // neither EXPR can be a function
     if ($2.type == FUNCTION)
     {
       yyerror("Arg 1 cannot be function");
@@ -255,11 +266,15 @@ N_ARITHLOGIC_EXPR:
       yyerror("Arg 2 cannot be function");
       YYABORT;
     }
+
+    // TODO: add op support
   };
 
 N_IF_EXPR:
   T_IF N_EXPR N_EXPR N_EXPR {
     printRule("IF_EXPR", "IF EXPR EXPR EXPR");
+
+    // TODO: add if support
   };
 
 N_LET_EXPR:
@@ -268,12 +283,14 @@ N_LET_EXPR:
 
     endScope();
 
+    // EXPR can't be function
     if ($5.type == FUNCTION)
     {
       yyerror("Arg 2 cannot be function");
       YYABORT;
     }
 
+    // resulting type is EXPR's type
     $$.type = $5.type;
     $$.numParams = $5.numParams;
     $$.returnType = $5.returnType;
@@ -283,17 +300,22 @@ N_LET_EXPR:
 N_ID_EXPR_LIST:
   {
     printRule("ID_EXPR_LIST", "epsilon");
+
+    // ID_EXPR_LIST has no type associated with it
   }|
   N_ID_EXPR_LIST T_LPAREN T_IDENT N_EXPR T_RPAREN {
     printRule("ID_EXPR_LIST", "ID_EXPR_LIST ( IDENT EXPR )");
     printf("___Adding %s to symbol table\n", $3);
 
+    // check to see if already declared
     if (scopes.top().has($3))
     {
+      // this variable has been declared in this scope before
       yyerror("Multiply defined identifier");
       YYABORT;
     }
 
+    // add to symbol table
     if ($4.type == FUNCTION)
     {
       scopes.top().add(SymbolTableEntry($3, $4.type, $4.numParams, $4.returnType));
@@ -314,15 +336,16 @@ N_LAMBDA_EXPR:
 
     endScope();
 
+    // EXPR can't be function
     if ($5.type == FUNCTION)
     {
       yyerror("Arg 2 cannot be function");
       YYABORT;
     }
 
-    $$.type = FUNCTION;
-    $$.numParams = $3.numParams;
-    $$.returnType = $5.type;
+    $$.type = FUNCTION; // end type always a function
+    $$.numParams = $3.numParams; // get number of params from ID_LIST
+    $$.returnType = $5.type; // use EXPR type as function return type
   };
 
 N_ID_LIST:
@@ -339,43 +362,47 @@ N_ID_LIST:
     printRule("ID_LIST", "ID_LIST IDENT");
     printf("___Adding %s to symbol table\n", $2);
 
+    // check if already declared in this scope
     if (scopes.top().has($2))
     {
+      // already declared in this scope
       yyerror("Multiply defined identifier");
       YYABORT;
     }
 
+    // add to symbol table
     // assume type is INT for now, as given in homework
     scopes.top().add(SymbolTableEntry($2, INT));
 
     $$.type = NOT_APPLICABLE;
-    $$.numParams = $1.numParams + 1;
+    $$.numParams = $1.numParams + 1; // T_IDENT is a new param, so add 1
     $$.returnType = NOT_APPLICABLE;
 
   };
 
 N_PRINT_EXPR:
   T_PRINT N_EXPR {
-    printRule("PRINT_EXPR", "PRINT EXPR");
+    printRule("PRINT_EXPR", "print EXPR");
 
+    // can't print a function
     if ($2.type == FUNCTION)
     {
       yyerror("Arg 1 cannot be function");
       YYABORT;
     }
 
-    $$.type == $2.type;
-    $$.numParams == 0;
-    $$.returnType == NOT_APPLICABLE;
+    $$.type = $2.type;
+    $$.numParams = 0;
+    $$.returnType = NOT_APPLICABLE;
 
   };
 
 N_INPUT_EXPR:
   T_INPUT {
-    printRule("INPUT_EXPR", "INPUT");
+    printRule("INPUT_EXPR", "input");
 
-    $$.type == INT_OR_STR;
-    $$.numParams == 0;
+    $$.type = INT_OR_STR; // input always either int or str
+    $$.numParams = 0;
     $$.returnType = NOT_APPLICABLE;
 
   };
@@ -384,15 +411,30 @@ N_EXPR_LIST:
   N_EXPR N_EXPR_LIST {
     printRule("EXPR_LIST", "EXPR EXPR_LIST");
 
+    // EXPR can't be a function
     if ($2.type == FUNCTION)
     {
       yyerror("Arg 2 cannot be function");
       YYABORT;
     }
 
+    /**
+     * The above line blocks functions, but it's a bit deceiving.
+     * Note that mfpl will call any functions in this list,
+     * so the resulting type for that expr is not FUNCTION, but instead
+     * the function's return type.
+     *
+     * This line above essentially prevents the user from placing a lambda
+     * declaration in the middle of the expr list.
+     */
+
+
+    // this EXPR is either a function call or a parameter
+    // find out which
     if ($1.type == FUNCTION)
     {
-
+      // is function
+      // check that the call has the correct number of params
       if ($2.numParams < $1.numParams)
       {
         yyerror("Too few parameters in function call");
@@ -405,33 +447,52 @@ N_EXPR_LIST:
         YYABORT;
       }
 
+      // as mentioned above, this function will be called at runtime
+      // resulting type is not FUNCTION, but instead function's return type
       $$.type = $1.returnType;
+
+      $$.numParams = $2.numParams; // float params
     }
 
     else
     {
-      $$.type = $2.type;
+      // is parameter
+      $$.type = $2.type; // float type back up
+      $$.numParams = $2.numParams + 1; // the EXPR adds one param
     }
 
-    $$.numParams = $2.numParams + 1;
+
     $$.returnType = $2.returnType;
 
   }|
   N_EXPR {
     printRule("EXPR_LIST", "EXPR");
 
+    // this is the last expr in the list
+    // it's either a function parameter or a function call with no parameters
+
+    // check if this expr is a function
     if ($1.type == FUNCTION)
     {
+      // mfpl will call this function at runtime
+      // resulting type is not FUNCTION, but instead function's return type
       $$.type = $1.returnType;
+
+      // the EXPR is the function name with no other params
       $$.numParams = 0;
     }
 
     else
     {
+      // this is a function parameter
+      // float type back up
       $$.type = $1.type;
+
+      // this is the last parameter, so we have 1 so far
       $$.numParams = 1;
     }
 
+    // in any case, returnType is not used
     $$.returnType = NOT_APPLICABLE;
 
   };
@@ -560,6 +621,7 @@ bool variableDeclared(const string varName)
   }
 }
 
+// finds variable in closest scope
 SymbolTableEntry getVariable(string varName)
 {
 
@@ -569,6 +631,7 @@ SymbolTableEntry getVariable(string varName)
     return SymbolTableEntry();
   }
 
+  // get variable
   if (scopes.top().has(varName))
   {
     return scopes.top().get(varName);
@@ -576,6 +639,8 @@ SymbolTableEntry getVariable(string varName)
 
   else
   {
+    // variable not found
+    // we need to go deeper
     SymbolTableEntry entry;
     SymbolTable symbolTable = scopes.top();
 
