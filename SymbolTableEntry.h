@@ -40,7 +40,7 @@ public:
   {
      name = entryName;
      typeInfo.type = entryType;
-     typeInfo.numParams = 0;
+     typeInfo.numParams = entryParams;
      typeInfo.returnType = returnType;
   }
 
