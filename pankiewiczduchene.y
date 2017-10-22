@@ -274,7 +274,31 @@ N_IF_EXPR:
   T_IF N_EXPR N_EXPR N_EXPR {
     printRule("IF_EXPR", "IF EXPR EXPR EXPR");
 
-    // TODO: add if support
+    // no args can be functions
+    if ($2.type == FUNCTION)
+    {
+      yyerror("Arg 1 cannot be function");
+      YYABORT;
+    }
+
+    else if ($3.type == FUNCTION)
+    {
+      yyerror("Arg 2 cannot be function");
+      YYABORT;
+    }
+
+    else if ($4.type == FUNCTION)
+    {
+      yyerror("Arg 3 cannot be function");
+      YYABORT;
+    }
+
+    // resulting type is a combination of the second/third exprs' types
+    $$.type = Type($3.type | $4.type);
+
+    $$.numParams = 0;
+    $$.returnType = NOT_APPLICABLE;
+
   };
 
 N_LET_EXPR:

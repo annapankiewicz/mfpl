@@ -17,7 +17,7 @@ private:
   TypeInfo typeInfo;
 
 public:
-  // remove eventually
+  // default constructor
   SymbolTableEntry()
   {
     name = "";
