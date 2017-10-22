@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stack>
+#include <string>
 #include <stdio.h>
 #include "TypeInfo.h"
 #include "SymbolTable.h"
@@ -46,6 +47,7 @@ extern "C"
 {
   char* text;
   TypeInfo typeInfo;
+  char* operation;
 }
 
 %token T_LETSTAR
@@ -87,7 +89,10 @@ extern "C"
 %type <typeInfo> N_INPUT_EXPR
 %type <typeInfo> N_EXPR_LIST
 %type <typeInfo> N_LET_EXPR
-// need to add the rest of these
+%type <operation> N_ARITH_OP
+%type <operation> N_LOG_OP
+%type <operation> N_REL_OP
+%type <operation> N_BIN_OP
 
 
 %start N_START
@@ -252,7 +257,56 @@ N_ARITHLOGIC_EXPR:
 
   }|
   N_BIN_OP N_EXPR N_EXPR {
-    printRule("ARITHLOGIC_EXPR", "BIN_OP EXPR EXPR");
+    printRule("ARITHLOGIC_EXPR", "BIN_OP EXPR EXPR"); 
+    // arithmetic operations EXPR must both be INT
+    if(($1=="*")||($1=="-")||($1=="/")||($1=="+"))
+    {
+      if($2.type != INT)
+      {
+        yyerror("Arg 1 must be integer");
+        YYABORT;
+      }
+      if($3.type != INT)
+      {
+        yyerror("Arg 2 must be integer");
+        YYABORT;
+      }
+
+      $$.type = INT; // arithmetic operator guarantees INT type
+      $$.numParams = 0;
+      $$.returnType = NOT_APPLICABLE;
+    }
+ 
+    // relational operators EXPR must be INT/INT or STR/STR
+    if(($1=="<")||($1==">")||($1=="<=")||
+       ($1==">=")||($1=="=")||($1=="/="))
+    {
+      if($2.type == INT)
+      {
+        if($3.type != INT)
+        {
+          yyerror("Arg 2 must be integer or string");
+          YYABORT;
+        }
+      }
+      else if($2.type == STR)
+      {
+        if($3.type != STR)
+        {
+          yyerror("Arg 2 must be integer or string");
+          YYABORT;
+        }
+      }
+      else
+      { 
+        yyerror("Arg 1 must be integer or string");
+        YYABORT;
+      }
+
+      $$.type = BOOL; // if arithmetic operators not used, type is BOOL
+      $$.numParams = 0;
+      $$.returnType = NOT_APPLICABLE;
+    }
 
     // neither EXPR can be a function
     if ($2.type == FUNCTION)
@@ -524,56 +578,69 @@ N_EXPR_LIST:
 N_BIN_OP:
   N_ARITH_OP {
     printRule("BIN_OP", "ARITH_OP");
-
-
+    $$ = $1;
   }|
   N_LOG_OP {
     printRule("BIN_OP", "LOG_OP");
+    $$ = $1;
   }|
   N_REL_OP {
     printRule("BIN_OP", "REL_OP");
+    $$ = $1;
   };
 
 N_ARITH_OP:
   T_MULT {
     printRule("ARITH_OP", "*");
+    $$ = "*";
   }|
   T_SUB {
     printRule("ARITH_OP", "-");
+    $$ = "-";
   }|
   T_DIV {
     printRule("ARITH_OP", "/");
+    $$ = "/";
   }|
   T_ADD {
     printRule("ARITH_OP", "+");
+    $$ = "+";
   };
 
 N_LOG_OP:
   T_AND {
     printRule("LOG_OP", "and");
+    $$ = "and";
   }|
   T_OR {
     printRule("LOG_OP", "or");
+    $$ = "and";
   };
 
 N_REL_OP:
   T_LT {
     printRule("REL_OP", "<");
+    $$ = "<";
   }|
   T_GT {
     printRule("REL_OP", ">");
+    $$ = ">";
   }|
   T_LE {
     printRule("REL_OP", "<=");
+    $$ = "<=";
   }|
   T_GE {
     printRule("REL_OP", ">=");
+    $$ = ">=";
   }|
   T_EQ {
     printRule("REL_OP", "=");
+    $$ = "=";
   }|
   T_NE {
     printRule("REL_OP", "/=");
+    $$ = "=";
   };
 
 N_UN_OP:
