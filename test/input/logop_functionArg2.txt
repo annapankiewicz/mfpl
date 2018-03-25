@@ -1,2 +1,0 @@
-(or nil (lambda () 1))
-

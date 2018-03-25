@@ -1,7 +1,0 @@
-TOKEN: INTCONST  LEXEME: -1234567890
-CONST -> INTCONST
-EXPR -> CONST
-START -> EXPR
-
----- Completed parsing ----
-

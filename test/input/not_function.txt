@@ -1,3 +1,0 @@
-(not (lambda (x y) (+ x y)))
-
-

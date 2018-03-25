@@ -7,46 +7,62 @@
 #define SYMBOL_TABLE_ENTRY_H
 
 #include <string>
-#include "TypeInfo.h"
+#include "Signature.h"
+#include "Store.h"
 using namespace std;
 
 class SymbolTableEntry
 {
 private:
   string name;
-  TypeInfo typeInfo;
+  Signature signature;
+  Store store;
 
 public:
   // default constructor
   SymbolTableEntry()
   {
     name = "";
-    typeInfo.type = NOT_APPLICABLE;
-    typeInfo.numParams = 0;
-    typeInfo.returnType = NOT_APPLICABLE;
+    signature.type = NOT_APPLICABLE;
+    signature.numParams = 0;
+    signature.returnType = NOT_APPLICABLE;
   }
 
   // Non-Function Constructor
-  SymbolTableEntry(const string entryName, const Type entryType)
+  SymbolTableEntry(string entryName, Type entryType, int vInt, string vStr, bool vBool)
   {
     name = entryName;
-    typeInfo.type = entryType;
-    typeInfo.numParams = 0;
-    typeInfo.returnType = NOT_APPLICABLE;
+
+    signature.type = entryType;
+    signature.numParams = 0;
+    signature.returnType = NOT_APPLICABLE;
+
+    store.vInt = vInt;
+    store.vStr = vStr;
+    store.vBool = vBool;
   }
 
+  // removed function constructor
   // Function Constructor
-  SymbolTableEntry(const string entryName, const Type entryType, const int entryParams, const Type returnType)
+
+  string getName() { return name; }
+
+  Signature getSignature() { return signature; }
+
+  int getInt()
   {
-     name = entryName;
-     typeInfo.type = entryType;
-     typeInfo.numParams = entryParams;
-     typeInfo.returnType = returnType;
+    return store.vInt;
   }
 
-  string getName() const { return name; }
+  string getStr()
+  {
+    return store.vStr;
+  }
 
-  TypeInfo getTypeInfo() const { return typeInfo; }
+  bool getBool()
+  {
+    return store.vBool;
+  }
 
 };
 

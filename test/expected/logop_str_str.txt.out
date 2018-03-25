@@ -16,3 +16,5 @@ START -> EXPR
 
 ---- Completed parsing ----
 
+
+Value of the expression is: t

@@ -1,3 +1,0 @@
-(let* ()
-  "kitty cat"
-)

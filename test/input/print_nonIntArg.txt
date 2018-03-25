@@ -1,4 +1,0 @@
-(let*
-  ((sub (lambda (x y) (- x y))))
-    (print sub)
-)
